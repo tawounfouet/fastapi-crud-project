@@ -1,0 +1,19 @@
+__pycache__
+app.egg-info
+*.pyc
+.mypy_cache
+.coverage
+htmlcov
+.cache
+.venv
+
+# SQLite databases
+*.db
+app/*.db
+
+# Environment files
+.env
+
+
+.venv/# Virtual environment directory
+VENV/
