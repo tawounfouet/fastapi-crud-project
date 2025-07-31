@@ -2,6 +2,6 @@
 set -e
 set -x
 
-python src/tests_pre_start.py
+python scripts/tests_pre_start.py
 
 bash scripts/test.sh "$@"

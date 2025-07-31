@@ -312,7 +312,7 @@ The application will show warnings for insecure default values:
 
 ```bash
 # Display current configuration
-python check_db.py
+python scripts/check_db.py
 
 # Sample output:
 🗄️  FastAPI Database Configuration
@@ -336,18 +336,18 @@ First Superuser: admin@example.com
 # Test different configurations without changing files
 export PROJECT_NAME="Test App"
 export ENVIRONMENT="testing"
-python check_db.py
+python scripts/check_db.py
 
 # Test PostgreSQL configuration
 export POSTGRES_SERVER="localhost"
 export POSTGRES_USER="testuser"
 export POSTGRES_PASSWORD="testpass"
 export POSTGRES_DB="testdb"
-python check_db.py
+python scripts/check_db.py
 
 # Test DATABASE_URL override
 export DATABASE_URL="postgresql://user:pass@host:5432/db"
-python check_db.py
+python scripts/check_db.py
 ```
 
 ### Configuration Validation Script
@@ -583,7 +583,7 @@ chmod 755 app/  # Ensure app directory is accessible
 
 ```bash
 # Run configuration validation
-python validate_config.py
+python scripts/validate_config.py
 
 # Check Pydantic validation
 python -c "

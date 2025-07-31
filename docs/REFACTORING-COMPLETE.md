@@ -124,7 +124,7 @@ cd src && alembic current && cd ..
 python -m pytest src/apps/users/tests/ -v
 
 # Check database status
-python check_db.py
+python scripts/check_db.py
 
 # Format and lint code
 ./scripts/format.sh

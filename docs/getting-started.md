@@ -42,7 +42,7 @@ fastapi-crud/
 ├── scripts/               # Utility scripts
 ├── .env                   # Environment variables
 ├── run_dev.sh            # Development server script
-└── check_db.py           # Database configuration checker
+└── scripts/check_db.py   # Database configuration checker
 ```
 
 ### 2. Install Dependencies
@@ -142,7 +142,7 @@ sequenceDiagram
 
 ```bash
 # Check current database configuration
-python check_db.py
+python scripts/check_db.py
 ```
 
 Example output:
@@ -191,7 +191,7 @@ curl -X POST "http://localhost:8001/api/v1/login/access-token" \
 
 ```bash
 # Verify database and tables
-python check_db.py
+python scripts/check_db.py
 ```
 
 ## 🐛 Common Issues

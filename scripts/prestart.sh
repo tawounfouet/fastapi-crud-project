@@ -4,7 +4,7 @@ set -e
 set -x
 
 # Let the DB start
-python src/backend_pre_start.py
+python scripts/backend_pre_start.py
 
 # Run migrations
 cd src && alembic upgrade head && cd ..

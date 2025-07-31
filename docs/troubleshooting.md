@@ -80,7 +80,7 @@ SECRET_KEY="your-secret-key-here"
 
 **Verify environment loading:**
 ```bash
-python check_db.py
+python scripts/check_db.py
 ```
 
 ### 2. Database Issues
@@ -110,7 +110,7 @@ SQLModel.metadata.create_all(engine)
 
 **Use the check script:**
 ```bash
-python check_db.py
+python scripts/check_db.py
 ```
 
 #### Issue: PostgreSQL connection failed
@@ -145,7 +145,7 @@ psql -h localhost -U postgres -d app
 **Verify connection string:**
 ```python
 # check_db.py output should show your connection details
-python check_db.py
+python scripts/check_db.py
 ```
 
 **Switch to SQLite fallback:**
@@ -521,7 +521,7 @@ pytest -n auto  # Requires pytest-xdist
 
 **Check database configuration:**
 ```bash
-python check_db.py
+python scripts/check_db.py
 ```
 
 **Inspect database schema:**

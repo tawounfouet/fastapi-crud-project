@@ -578,7 +578,7 @@ netstat -tulpn | grep :8000
 **Database connection issues:**
 ```bash
 # Test database connectivity
-python check_db.py
+python scripts/check_db.py
 ```
 
 **Environment variable issues:**

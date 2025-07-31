@@ -63,7 +63,7 @@ shell: ## Start interactive Python shell with app context
 # ============================================================================
 
 db-init: ## Initialize database with initial data
-	$(PYTHON) $(SRC_DIR)/backend_pre_start.py
+	$(PYTHON) scripts/backend_pre_start.py
 	cd $(SRC_DIR) && $(UV) run alembic upgrade head && cd ..
 	$(PYTHON) $(SRC_DIR)/initial_data.py
 	@echo "✅ Database initialized successfully"
@@ -71,11 +71,11 @@ db-init: ## Initialize database with initial data
 db-reset: ## Reset database (⚠️  DESTRUCTIVE - removes all data)
 	@echo "⚠️  This will DELETE ALL DATA in your database!"
 	@read -p "Are you sure? Type 'yes' to continue: " confirm && [ "$$confirm" = "yes" ]
-	$(PYTHON) debug_reset.py
+	$(PYTHON) scripts/debug_reset.py
 	@echo "✅ Database reset completed"
 
 db-health: ## Check database health and configuration
-	$(PYTHON) check_db.py
+	$(PYTHON) scripts/check_db.py
 
 migrate: ## Create and apply database migration
 	@read -p "Migration name: " name; \
@@ -158,6 +158,9 @@ security: ## Run security checks
 check-env: ## Validate environment configuration
 	@echo "🔍 Checking environment configuration..."
 	$(PYTHON) -c "from $(SRC_DIR).core.config import settings; print(f'✅ Environment: {settings.ENVIRONMENT}'); print(f'✅ Project: {settings.PROJECT_NAME}'); print(f'✅ Database: {settings.SQLALCHEMY_DATABASE_URI.split(\"://\")[0]}://')"
+
+validate-config: ## Run comprehensive configuration validation
+	$(PYTHON) scripts/validate_config.py
 
 # ============================================================================
 # PRE-COMMIT AND GIT

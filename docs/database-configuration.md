@@ -263,7 +263,7 @@ SENTRY_DSN=https://your-sentry-dsn@sentry.io/project
 
 ```bash
 # Run the database checker
-python check_db.py
+python scripts/check_db.py
 ```
 
 ### Test Different Configurations
@@ -271,16 +271,16 @@ python check_db.py
 ```bash
 # Test SQLite fallback
 unset DATABASE_URL POSTGRES_SERVER
-python check_db.py
+python scripts/check_db.py
 
 # Test PostgreSQL
 export POSTGRES_SERVER=localhost
 export POSTGRES_USER=testuser
-python check_db.py
+python scripts/check_db.py
 
 # Test DATABASE_URL
 export DATABASE_URL="sqlite:///test.db"
-python check_db.py
+python scripts/check_db.py
 ```
 
 ## 🔧 Migration Management

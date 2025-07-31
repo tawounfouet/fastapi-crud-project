@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 from sqlmodel import select
 
-from src.backend_pre_start import init, logger
+from scripts.backend_pre_start import init, logger
 
 
 def test_init_successful_connection() -> None:

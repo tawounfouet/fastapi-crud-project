@@ -165,7 +165,7 @@ uv run pytest src/tests/ -v --cov=src --cov-report=html --cov-report=term
 # scripts/prestart.sh - Pre-startup checks
 #!/bin/bash
 set -e
-python src/backend_pre_start.py  # Database connection check
+python scripts/backend_pre_start.py  # Database connection check
 cd src && alembic upgrade head && cd ..  # Apply migrations
 python src/initial_data.py        # Create initial data
 ```
@@ -179,10 +179,10 @@ export $(grep -v '^#' .env | xargs)
 .venv/bin/fastapi run --reload --port 8001 src/main.py
 
 # check_db.py - Database configuration checker
-python check_db.py
+python scripts/check_db.py
 
 # validate_config.py - Environment validation
-python validate_config.py
+python scripts/validate_config.py
 ```
 
 ## 🧪 Testing Strategy
