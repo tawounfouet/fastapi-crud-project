@@ -3,7 +3,7 @@ Utility modules for the FastAPI CRUD application.
 
 This package contains various utility functions organized by domain:
 - email: Email sending and template rendering utilities
-- auth: Authentication token and security utilities  
+- auth: Authentication token and security utilities
 - common: General purpose utility functions
 """
 
@@ -24,10 +24,10 @@ from .auth import (
 __all__ = [
     # Email utilities
     "EmailData",
-    "send_email", 
+    "send_email",
     "render_email_template",
     "generate_test_email",
-    "generate_reset_password_email", 
+    "generate_reset_password_email",
     "generate_new_account_email",
     # Auth utilities
     "generate_password_reset_token",

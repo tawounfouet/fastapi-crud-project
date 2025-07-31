@@ -292,3 +292,9 @@ backup-db: ## Backup SQLite database
 
 test-email: ## Test email functionality and configuration
 	$(PYTHON) scripts/test_email_functionality.py
+
+test-live-email: ## Send actual test emails (⚠️ sends real emails!)
+	$(PYTHON) scripts/test_live_email.py
+
+test-email-integration: ## Test email via FastAPI endpoints (requires running server)
+	$(PYTHON) scripts/test_email_integration.py

@@ -17,3 +17,5 @@ app/*.db
 
 .venv/# Virtual environment directory
 VENV/
+
+backups/

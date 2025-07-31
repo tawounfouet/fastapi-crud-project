@@ -19,10 +19,10 @@ from src.core.config import settings
 def generate_password_reset_token(email: str) -> str:
     """
     Generate a secure JWT token for password reset.
-    
+
     Args:
         email: User's email address to encode in the token
-        
+
     Returns:
         Encoded JWT token string
     """
@@ -41,10 +41,10 @@ def generate_password_reset_token(email: str) -> str:
 def verify_password_reset_token(token: str) -> str | None:
     """
     Verify and decode a password reset token.
-    
+
     Args:
         token: JWT token to verify
-        
+
     Returns:
         User's email if token is valid, None if invalid or expired
     """

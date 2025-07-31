@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class EmailData:
     """Data structure for email content."""
+
     html_content: str
     subject: str
 
@@ -31,11 +32,11 @@ class EmailData:
 def render_email_template(*, template_name: str, context: dict[str, Any]) -> str:
     """
     Render an email template with the given context.
-    
+
     Args:
         template_name: Name of the template file (e.g., 'test_email.html')
         context: Variables to render in the template
-        
+
     Returns:
         Rendered HTML content as string
     """
@@ -54,12 +55,12 @@ def send_email(
 ) -> None:
     """
     Send an email using the configured SMTP settings.
-    
+
     Args:
         email_to: Recipient email address
         subject: Email subject line
         html_content: HTML content of the email
-        
+
     Raises:
         AssertionError: If emails are not enabled in settings
     """
@@ -85,10 +86,10 @@ def send_email(
 def generate_test_email(email_to: str) -> EmailData:
     """
     Generate a test email for verification purposes.
-    
+
     Args:
         email_to: Recipient email address
-        
+
     Returns:
         EmailData with test email content
     """
@@ -104,12 +105,12 @@ def generate_test_email(email_to: str) -> EmailData:
 def generate_reset_password_email(email_to: str, email: str, token: str) -> EmailData:
     """
     Generate a password reset email with secure token.
-    
+
     Args:
         email_to: Recipient email address
         email: User's email (for display)
         token: Secure password reset token
-        
+
     Returns:
         EmailData with password reset email content
     """
@@ -134,12 +135,12 @@ def generate_new_account_email(
 ) -> EmailData:
     """
     Generate a new account welcome email with credentials.
-    
+
     Args:
         email_to: Recipient email address
         username: New user's username
         password: Temporary password for the new account
-        
+
     Returns:
         EmailData with new account email content
     """
