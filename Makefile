@@ -289,3 +289,6 @@ backup-db: ## Backup SQLite database
 
 # Show status on make without arguments
 .DEFAULT_GOAL := help
+
+test-email: ## Test email functionality and configuration
+	$(PYTHON) scripts/test_email_functionality.py
