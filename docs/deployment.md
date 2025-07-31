@@ -599,7 +599,7 @@ docker push your-registry/fastapi-crud:latest
 **Database migrations:**
 ```bash
 # Rollback database migrations (if using Alembic)
-alembic downgrade -1
+cd src && alembic downgrade -1 && cd ..
 ```
 
 This deployment guide provides comprehensive coverage for deploying your FastAPI CRUD application across different environments and platforms. Choose the deployment strategy that best fits your requirements and infrastructure.

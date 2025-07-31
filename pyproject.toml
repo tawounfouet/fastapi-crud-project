@@ -7,7 +7,10 @@ dependencies = [
     "fastapi[standard]<1.0.0,>=0.114.2",
     "python-multipart<1.0.0,>=0.0.7",
     "email-validator<3.0.0.0,>=2.1.0.post1",
-    "passlib[bcrypt]<2.0.0,>=1.7.4",
+    # Use python-bcrypt directly instead of passlib for modern development
+    "bcrypt>=4.1.0,<5.0.0",
+    # Alternative: Argon2 for state-of-the-art password hashing (2025 best practice)
+    "argon2-cffi>=23.1.0,<24.0.0",
     "tenacity<9.0.0,>=8.2.3",
     "pydantic>2.0", # Use the latest Pydantic 2.x version
     "emails<1.0,>=0.6",
@@ -16,8 +19,6 @@ dependencies = [
     "httpx<1.0.0,>=0.25.1",
     "psycopg[binary]<4.0.0,>=3.1.13",
     "sqlmodel<1.0.0,>=0.0.21",
-    # Pin bcrypt until passlib supports the latest
-    "bcrypt==4.3.0",
     "pydantic-settings<3.0.0,>=2.2.1",
     "sentry-sdk[fastapi]<2.0.0,>=1.40.6",
     "pyjwt<3.0.0,>=2.8.0",
@@ -36,6 +37,9 @@ dev-dependencies = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
 
 [tool.mypy]
 strict = true
@@ -66,3 +70,12 @@ ignore = [
 [tool.ruff.lint.pyupgrade]
 # Preserve types, even if a file imports `from __future__ import annotations`.
 keep-runtime-typing = true
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning:passlib.*",
+    "ignore::PendingDeprecationWarning:starlette.*",
+    "ignore:.*python_multipart.*:PendingDeprecationWarning",
+    "ignore:.*crypt.*:DeprecationWarning",
+    "ignore:.*engine provided as bind produced a connection.*:sqlalchemy.exc.SAWarning",
+]

@@ -33,7 +33,7 @@ curl http://localhost:8001/docs
 | **MyPy** | Type checking | `pyproject.toml` |
 | **Pytest** | Testing framework | `pyproject.toml` |
 | **Pre-commit** | Git hooks | `.pre-commit-config.yaml` |
-| **Alembic** | Database migrations | `alembic.ini` |
+| **Alembic** | Database migrations | `src/alembic.ini` |
 
 ### Development Workflow
 
@@ -160,14 +160,14 @@ uv run mypy .
 # scripts/test.sh - Run test suite
 #!/bin/bash
 set -e
-uv run pytest app/tests/ -v --cov=app --cov-report=html --cov-report=term
+uv run pytest src/tests/ -v --cov=src --cov-report=html --cov-report=term
 
 # scripts/prestart.sh - Pre-startup checks
 #!/bin/bash
 set -e
-python app/backend_pre_start.py  # Database connection check
-alembic upgrade head              # Apply migrations (PostgreSQL)
-python app/initial_data.py        # Create initial data
+python src/backend_pre_start.py  # Database connection check
+cd src && alembic upgrade head && cd ..  # Apply migrations
+python src/initial_data.py        # Create initial data
 ```
 
 ### Custom Development Scripts
@@ -176,7 +176,7 @@ python app/initial_data.py        # Create initial data
 # run_dev.sh - Development server with environment
 #!/bin/bash
 export $(grep -v '^#' .env | xargs)
-.venv/bin/fastapi run --reload --port 8001 app/main.py
+.venv/bin/fastapi run --reload --port 8001 src/main.py
 
 # check_db.py - Database configuration checker
 python check_db.py
@@ -190,7 +190,7 @@ python validate_config.py
 ### Test Structure
 
 ```
-app/tests/
+src/tests/
 ├── conftest.py              # Test configuration and fixtures
 ├── api/                     # API endpoint tests
 │   ├── routes/
@@ -280,8 +280,8 @@ uv run pytest
 uv run pytest --cov=app --cov-report=html
 
 # Run specific test categories
-uv run pytest app/tests/api/  # API tests only
-uv run pytest app/tests/crud/ # CRUD tests only
+uv run pytest src/tests/api/  # API tests only
+uv run pytest src/tests/crud/ # CRUD tests only
 
 # Run with verbose output
 uv run pytest -v
@@ -438,23 +438,24 @@ sequenceDiagram
 ### Database Commands
 
 ```bash
-# Create a new migration
+# From project root (recommended)
+./scripts/alembic.sh revision --autogenerate -m "Add user table"
+./scripts/alembic.sh upgrade head
+./scripts/alembic.sh downgrade -1
+./scripts/alembic.sh current
+./scripts/alembic.sh history
+
+# From src/ directory (alternative)
+cd src
 alembic revision --autogenerate -m "Add user table"
-
-# Apply migrations
 alembic upgrade head
-
-# Rollback migration
 alembic downgrade -1
-
-# Check current migration
 alembic current
-
-# Show migration history
 alembic history
+cd ..
 
 # Show SQL for migration (don't execute)
-alembic upgrade head --sql
+./scripts/alembic.sh upgrade head --sql
 ```
 
 ### Model Development Best Practices
@@ -518,10 +519,10 @@ class User(SQLModel, table=True):
 ### Logging Configuration
 
 ```python
-# app/core/logging.py
+# src/core/logging.py
 import logging
 import sys
-from app.core.config import settings
+from src.core.config import settings
 
 def setup_logging():
     """Configure application logging."""

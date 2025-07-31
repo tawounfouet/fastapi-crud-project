@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 # Load environment variables
-from app.core.config import settings
+from src.core.config import settings
 
 
 def main():

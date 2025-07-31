@@ -173,7 +173,7 @@ rm app/sqlite3.db
 **For PostgreSQL (manual migration):**
 ```bash
 # If using Alembic migrations
-alembic upgrade head
+cd src && alembic upgrade head && cd ..
 
 # Or recreate database
 dropdb app && createdb app
