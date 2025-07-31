@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from src.api.routes import private, utils
 from src.apps.auth.urls import router as auth_router
+from src.apps.blog.urls import router as blog_router
 from src.apps.demo.urls import router as demo_router
 from src.apps.users.urls import router as users_router
 from src.core.config import settings
@@ -18,6 +19,7 @@ api_router.include_router(users_router)
 api_router.include_router(utils.router)
 
 # Include DDD apps
+api_router.include_router(blog_router)
 api_router.include_router(demo_router)
 
 if settings.ENVIRONMENT == "local":

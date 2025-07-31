@@ -298,3 +298,6 @@ test-live-email: ## Send actual test emails (⚠️ sends real emails!)
 
 test-email-integration: ## Test email via FastAPI endpoints (requires running server)
 	$(PYTHON) scripts/test_email_integration.py
+
+demo-blog: ## Run blog app demonstration (requires running server)
+	$(PYTHON) scripts/demo_blog_app.py

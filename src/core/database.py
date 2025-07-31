@@ -10,11 +10,20 @@ from sqlmodel import Session, SQLModel, create_engine, select
 # 2. Proper relationship detection
 # 3. Foreign key constraint creation
 # User domain models
-from src.apps.users.models import User
+from src.apps.users.models import User, UserSession, UserProfile  # noqa
+
+# Demo domain models
+from src.apps.demo.models import Product, Order, OrderItem  # noqa
+
+# Auth domain models
+from src.apps.auth.models import RefreshToken, PasswordResetToken, LoginAttempt  # noqa
+
+# Blog domain models
+from src.apps.blog.models import BlogPost, Category, Tag, Comment  # noqa
 from src.core.config import settings
 
 # NOTE: When adding new apps, import their models here
-# Example: from src.apps.blog.models import Post, Comment, Tag
+# All models imported above are automatically registered with SQLModel metadata
 
 # Create engine with optimized connection pooling
 engine_config: dict[str, Any] = {

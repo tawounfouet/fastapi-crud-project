@@ -23,6 +23,7 @@ from sqlmodel import SQLModel
 from src.apps.users.models import User, UserSession, UserProfile  # noqa
 from src.apps.demo.models import Product, Order, OrderItem  # noqa
 from src.apps.auth.models import RefreshToken, PasswordResetToken, LoginAttempt  # noqa
+from src.apps.blog.models import BlogPost, Category, Tag, Comment  # noqa
 from src.core.config import settings  # noqa
 
 target_metadata = SQLModel.metadata

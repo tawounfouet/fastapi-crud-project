@@ -292,6 +292,9 @@ make test-email           # Test email functionality
 make test-live-email      # Test live email delivery
 make test-email-integration # Test email API endpoints
 
+# Demonstrations
+make demo-blog            # Run blog app demonstration (requires running server)
+
 # Database
 make migration            # Create new migration
 make migrate             # Apply migrations
