@@ -418,6 +418,8 @@ class UserPublicOutput(UserBase):
     created_at: datetime = Field(..., description="User creation timestamp")
     updated_at: datetime | None = Field(None, description="Last update timestamp")
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class UsersListOutput(BaseModel):
     """Schema for paginated user list output"""

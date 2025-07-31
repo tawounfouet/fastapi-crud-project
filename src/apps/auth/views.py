@@ -165,7 +165,7 @@ def refresh_token(
 
 @router.post(
     "/signup",
-    response_model=dict,  # Use dict instead of SignupResponse for now
+    response_model=SignupResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Register new user",
     description="Create a new user account.",
