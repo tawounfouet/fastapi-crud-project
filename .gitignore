@@ -19,3 +19,4 @@ app/*.db
 VENV/
 
 backups/
+resources/

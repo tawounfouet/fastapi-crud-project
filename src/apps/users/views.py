@@ -73,12 +73,9 @@ def get_users(
     with optional filtering by active status and superuser status.
     """
     try:
-        users = user_service.get_users(
+        users, total_count = user_service.get_users_with_count(
             skip=skip, limit=limit, is_active=is_active, is_superuser=is_superuser
         )
-
-        # Get total count for pagination (simplified for now)
-        total_count = len(users) + skip  # This is a simplification
 
         return UsersListOutput(
             data=[UserPublicOutput.model_validate(user) for user in users],

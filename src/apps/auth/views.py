@@ -1,7 +1,15 @@
 """
 Auth Views Module
 
-This module contains the FastAPI endpoints for authentication operations.
+This module contains the FastAPI endpoints for authenticatio        result = auth_service.authenticate_user(
+            login_data=login_data, ip_address=ip_address, user_agent=user_agent
+        )
+        # Convert AuthResult to dict to match response_model
+        return {
+            "user": UserPublicOutput.model_validate(result.user, from_attributes=True),
+            "tokens": result.tokens,
+            "session_id": result.session_id
+        }ons.
 It acts as the presentation layer for authentication in the DDD architecture.
 """
 
@@ -58,7 +66,7 @@ def get_client_info(request: Request) -> tuple[str | None, str | None]:
 
 @router.post(
     "/login",
-    response_model=dict,  # Use dict instead of LoginResponse for now
+    response_model=dict,
     status_code=status.HTTP_200_OK,
     summary="Login user",
     description="Authenticate user and return access token with optional refresh token.",
@@ -84,7 +92,12 @@ def login(
         result = auth_service.authenticate_user(
             login_data=login_data, ip_address=ip_address, user_agent=user_agent
         )
-        return result
+        # Convert AuthResult to dict to match response_model
+        return {
+            "user": UserPublicOutput.model_validate(result.user, from_attributes=True),
+            "tokens": result.tokens,
+            "session_id": result.session_id,
+        }
 
     except TooManyLoginAttemptsError as e:
         raise HTTPException(
