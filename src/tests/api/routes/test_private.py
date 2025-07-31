@@ -1,9 +1,10 @@
-from fastapi.testclient import TestClient
-from sqlmodel import Session, select
 import uuid
 
-from src.core.config import settings
+from fastapi.testclient import TestClient
+from sqlmodel import Session, select
+
 from src.apps.users.models import User
+from src.core.config import settings
 
 
 def test_create_user(client: TestClient, db: Session) -> None:

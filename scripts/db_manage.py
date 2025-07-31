@@ -9,9 +9,11 @@ including migrations, health checks, and maintenance operations.
 import argparse
 import sys
 from pathlib import Path
+
 from sqlmodel import Session, text
+
 from src.core.config import settings
-from src.core.database import engine, init_db, verify_db_connection
+from src.core.database import engine, init_db
 
 
 class DatabaseManager:
@@ -212,7 +214,8 @@ class DatabaseManager:
     ) -> bool:
         """Create a superuser via CLI interface."""
         import getpass
-        from src.apps.users.services import UserService, UserAlreadyExistsError
+
+        from src.apps.users.services import UserAlreadyExistsError, UserService
 
         print(f"🔐 Creating superuser: {email}")
 
@@ -258,8 +261,9 @@ class DatabaseManager:
     ) -> bool:
         """Create a regular user via CLI interface."""
         import getpass
-        from src.apps.users.services import UserService, UserAlreadyExistsError
+
         from src.apps.users.schemas import UserCreate
+        from src.apps.users.services import UserAlreadyExistsError, UserService
 
         print(f"👤 Creating user: {email}")
 

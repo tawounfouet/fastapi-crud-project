@@ -4,11 +4,11 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, delete
 
+from src.apps.auth.models import LoginAttempt, PasswordResetToken, RefreshToken
+from src.apps.users.models import User
 from src.core.config import settings
 from src.core.database import engine, init_db
 from src.main import app
-from src.apps.users.models import User
-from src.apps.auth.models import LoginAttempt, RefreshToken, PasswordResetToken
 from src.tests.utils.user import authentication_token_from_email
 from src.tests.utils.utils import get_superuser_token_headers
 

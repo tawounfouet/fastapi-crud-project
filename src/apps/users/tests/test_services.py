@@ -4,25 +4,25 @@ Tests for User Services
 This module contains unit tests for the UserService class.
 """
 
-import pytest
 import uuid
-from datetime import datetime, timezone
-from sqlmodel import Session, create_engine, SQLModel
+from datetime import datetime
+
+import pytest
+from sqlmodel import Session, create_engine
 from sqlmodel.pool import StaticPool
 
 # Only import what we need for testing to avoid model conflicts
 from src.apps.users.models import User, UserProfile, UserSession
-from src.apps.users.services import (
-    UserService,
-    UserNotFoundError,
-    UserAlreadyExistsError,
-    InvalidCredentialsError,
-)
 from src.apps.users.schemas import (
+    UpdatePassword,
     UserCreate,
     UserUpdate,
-    UpdatePassword,
-    UserProfileUpdate,
+)
+from src.apps.users.services import (
+    InvalidCredentialsError,
+    UserAlreadyExistsError,
+    UserNotFoundError,
+    UserService,
 )
 
 
@@ -35,7 +35,6 @@ def test_engine():
         poolclass=StaticPool,
     )
     # Import only our DDD models
-    from src.apps.users.models import User, UserProfile, UserSession
 
     # Create only the DDD user tables
     User.__table__.create(engine, checkfirst=True)

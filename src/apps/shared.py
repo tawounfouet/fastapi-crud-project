@@ -6,8 +6,9 @@ This module contains shared schemas and models that are used across multiple app
 
 import uuid
 from datetime import datetime, timezone
+
 from pydantic import EmailStr
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
 
 
 # Base models for common functionality

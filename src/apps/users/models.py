@@ -3,14 +3,14 @@ Users App Models - Database entities and domain models
 """
 
 import uuid
-from typing import Optional, List, TYPE_CHECKING
-
-from pydantic import EmailStr, ConfigDict
-from sqlmodel import Field, Relationship, SQLModel, Index
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Optional
+
+from pydantic import EmailStr
+from sqlmodel import Field, Index, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from src.apps.auth.models import RefreshToken, PasswordResetToken, LoginAttempt
+    pass
 
 
 class BaseUserModel(SQLModel):
@@ -22,7 +22,8 @@ class BaseUserModel(SQLModel):
     )
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    # Note: SQLModel uses model_config differently than Pydantic
+    # model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class User(BaseUserModel, table=True):
@@ -94,7 +95,7 @@ class User(BaseUserModel, table=True):
         self.updated_at = datetime.now(timezone.utc)
 
     # Relationships
-    sessions: List["UserSession"] = Relationship(
+    sessions: list["UserSession"] = Relationship(
         back_populates="user", cascade_delete=True
     )
     profile: Optional["UserProfile"] = Relationship(back_populates="user")

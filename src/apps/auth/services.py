@@ -8,33 +8,30 @@ import hashlib
 import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Tuple, Dict, Any, NamedTuple
-from sqlmodel import Session, select, and_, or_
+from typing import NamedTuple
 
+from sqlmodel import Session, and_, select
+
+from src.apps.users.models import User
+from src.apps.users.services import (
+    InvalidCredentialsError,
+    UserNotFoundError,
+    UserService,
+)
 from src.core.config import settings
 from src.core.security import (
     create_access_token,
-    verify_password,
     get_password_hash,
-    decode_access_token,
+    verify_password,
 )
-from src.apps.users.services import (
-    UserService,
-    UserNotFoundError,
-    InvalidCredentialsError,
-)
-from src.apps.users.models import User
 from src.utils import generate_password_reset_token, verify_password_reset_token
 
-from .models import RefreshToken, PasswordResetToken, LoginAttempt
+from .models import LoginAttempt, PasswordResetToken, RefreshToken
 from .schemas import (
+    AuthStatusResponse,
     LoginRequest,
     SignupRequest,
     TokenResponse,
-    AuthStatusResponse,
-    PasswordResetRequest,
-    PasswordResetConfirm,
-    ChangePasswordRequest,
 )
 
 
@@ -87,8 +84,8 @@ class AuthService:
     def authenticate_user(
         self,
         login_data: LoginRequest,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
     ) -> AuthResult:
         """
         Authenticate a user and create session.
@@ -167,7 +164,7 @@ class AuthService:
         db_token = self.session.exec(
             select(RefreshToken).where(
                 and_(
-                    RefreshToken.token_hash == token_hash, RefreshToken.revoked == False
+                    RefreshToken.token_hash == token_hash, RefreshToken.revoked is False
                 )
             )
         ).first()
@@ -193,8 +190,8 @@ class AuthService:
     def register_user(
         self,
         signup_data: SignupRequest,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
     ) -> User:
         """
         Register a new user.
@@ -237,7 +234,7 @@ class AuthService:
     def logout_user(
         self,
         user_id: uuid.UUID,
-        refresh_token: Optional[str] = None,
+        refresh_token: str | None = None,
         all_devices: bool = False,
     ) -> bool:
         """
@@ -255,7 +252,7 @@ class AuthService:
             # Revoke all refresh tokens for user
             tokens = self.session.exec(
                 select(RefreshToken).where(
-                    and_(RefreshToken.user_id == user_id, RefreshToken.revoked == False)
+                    and_(RefreshToken.user_id == user_id, RefreshToken.revoked is False)
                 )
             ).all()
 
@@ -271,7 +268,7 @@ class AuthService:
                     and_(
                         RefreshToken.token_hash == token_hash,
                         RefreshToken.user_id == user_id,
-                        RefreshToken.revoked == False,
+                        RefreshToken.revoked is False,
                     )
                 )
             ).first()
@@ -289,8 +286,8 @@ class AuthService:
     def request_password_reset(
         self,
         email: str,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
     ) -> str:
         """
         Request a password reset for a user.
@@ -355,7 +352,7 @@ class AuthService:
                 and_(
                     PasswordResetToken.token_hash == token_hash,
                     PasswordResetToken.email == email,
-                    PasswordResetToken.used == False,
+                    PasswordResetToken.used is False,
                 )
             )
         ).first()
@@ -454,9 +451,9 @@ class AuthService:
         self,
         user: User,
         remember_me: bool = False,
-        device_id: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        device_id: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
     ) -> TokenResponse:
         """Create access and refresh tokens for a user."""
         # Create access token
@@ -493,8 +490,8 @@ class AuthService:
     def _create_user_session(
         self,
         user_id: uuid.UUID,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
     ) -> str:
         """Create a user session."""
         from src.apps.users.models import UserSession
@@ -517,9 +514,7 @@ class AuthService:
         """Hash a token for secure storage."""
         return hashlib.sha256(token.encode()).hexdigest()
 
-    def _check_login_attempts(
-        self, email: str, ip_address: Optional[str] = None
-    ) -> None:
+    def _check_login_attempts(self, email: str, ip_address: str | None = None) -> None:
         """Check for too many failed login attempts."""
         # Check attempts in the last 15 minutes
         since = datetime.now(timezone.utc) - timedelta(minutes=15)
@@ -527,7 +522,7 @@ class AuthService:
         # Build conditions for checking attempts
         conditions = [
             LoginAttempt.email == email,
-            LoginAttempt.successful == False,
+            LoginAttempt.successful is False,
             LoginAttempt.created_at >= since,
         ]
 
@@ -548,10 +543,10 @@ class AuthService:
         self,
         email: str,
         successful: bool,
-        user_id: Optional[uuid.UUID] = None,
-        failure_reason: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
+        user_id: uuid.UUID | None = None,
+        failure_reason: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
     ) -> None:
         """Log a login attempt."""
 

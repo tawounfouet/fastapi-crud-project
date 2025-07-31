@@ -10,10 +10,10 @@ side-channel attacks and better resistance to specialized hardware attacks.
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-import jwt
 import argon2
+import jwt
 from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError, HashingError
+from argon2.exceptions import HashingError, VerifyMismatchError
 
 from src.core.config import settings
 
@@ -41,7 +41,9 @@ def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
 def decode_access_token(token: str) -> dict[str, Any] | None:
     """Decode and validate a JWT access token."""
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        payload: dict[str, Any] = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[ALGORITHM]
+        )
         return payload
     except jwt.PyJWTError:
         return None

@@ -5,15 +5,14 @@ This module contains middleware for authentication and authorization.
 """
 
 import time
-from typing import Optional, Callable
-from fastapi import Request, Response, HTTPException, status
-from fastapi.security.utils import get_authorization_scheme_param
-from sqlmodel import Session, select
+from collections.abc import Callable
 
+from fastapi import HTTPException, Request, Response, status
+from fastapi.security.utils import get_authorization_scheme_param
+
+from src.apps.users.models import User
 from src.core.database import get_session
 from src.core.security import decode_access_token
-from src.apps.users.models import User
-from src.apps.users.services import UserService
 
 
 class AuthenticationMiddleware:
@@ -30,7 +29,7 @@ class AuthenticationMiddleware:
     def __init__(
         self,
         app: Callable,
-        exempt_paths: Optional[list[str]] = None,
+        exempt_paths: list[str] | None = None,
         rate_limit_attempts: int = 100,
         rate_limit_window: int = 3600,  # 1 hour
     ):
@@ -144,7 +143,7 @@ class AuthenticationMiddleware:
         self.rate_limit_storage[client_ip].append(now)
         return True
 
-    def _extract_token(self, request: Request) -> Optional[str]:
+    def _extract_token(self, request: Request) -> str | None:
         """Extract JWT token from request."""
         # Check Authorization header
         authorization = request.headers.get("Authorization")
@@ -165,7 +164,7 @@ class AuthenticationMiddleware:
 
         return None
 
-    async def _validate_token(self, token: str) -> Optional[User]:
+    async def _validate_token(self, token: str) -> User | None:
         """Validate JWT token and return user."""
         try:
             # Decode token

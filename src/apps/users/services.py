@@ -7,25 +7,24 @@ It encapsulates all user-related operations and business rules.
 
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Any, Optional, List
 
-from sqlmodel import Session, select, col
-from fastapi import HTTPException, status
+from sqlmodel import Session, select
 
-from src.core.security_unified import (
-    get_password_hash,
-    verify_password,
-    create_access_token,
-    upgrade_password_hash,
-)
 from src.core.config import settings
-from .models import User, UserSession, UserProfile
+from src.core.security_unified import (
+    create_access_token,
+    get_password_hash,
+    upgrade_password_hash,
+    verify_password,
+)
+
+from .models import User, UserProfile, UserSession
 from .schemas import (
-    UserCreate,
-    UserUpdate,
     UpdatePassword,
+    UserCreate,
     UserProfileUpdate,
     UserSessionCreate,
+    UserUpdate,
 )
 
 
@@ -99,8 +98,8 @@ class UserService:
         self,
         email: str,
         password: str,
-        first_name: Optional[str] = None,
-        last_name: Optional[str] = None,
+        first_name: str | None = None,
+        last_name: str | None = None,
     ) -> User:
         """
         Create a superuser account.
@@ -143,7 +142,7 @@ class UserService:
 
         return user
 
-    def get_user_by_id(self, user_id: uuid.UUID) -> Optional[User]:
+    def get_user_by_id(self, user_id: uuid.UUID) -> User | None:
         """
         Get a user by ID.
 
@@ -155,7 +154,7 @@ class UserService:
         """
         return self.session.get(User, user_id)
 
-    def get_user_by_email(self, email: str) -> Optional[User]:
+    def get_user_by_email(self, email: str) -> User | None:
         """
         Get a user by email address.
 
@@ -172,9 +171,9 @@ class UserService:
         self,
         skip: int = 0,
         limit: int = 100,
-        is_active: Optional[bool] = None,
-        is_superuser: Optional[bool] = None,
-    ) -> List[User]:
+        is_active: bool | None = None,
+        is_superuser: bool | None = None,
+    ) -> list[User]:
         """
         Get a list of users with optional filtering.
 
@@ -202,9 +201,9 @@ class UserService:
         self,
         skip: int = 0,
         limit: int = 100,
-        is_active: Optional[bool] = None,
-        is_superuser: Optional[bool] = None,
-    ) -> tuple[List[User], int]:
+        is_active: bool | None = None,
+        is_superuser: bool | None = None,
+    ) -> tuple[list[User], int]:
         """
         Get a list of users with total count for pagination.
 
@@ -227,7 +226,7 @@ class UserService:
             where_conditions.append(User.is_superuser == is_superuser)
 
         # Get total count
-        count_statement = select(func.count(User.id))
+        count_statement = select(func.count()).select_from(User)
         for condition in where_conditions:
             count_statement = count_statement.where(condition)
 
@@ -495,7 +494,7 @@ class UserService:
 
         return user_session
 
-    def get_active_sessions(self, user_id: uuid.UUID) -> List[UserSession]:
+    def get_active_sessions(self, user_id: uuid.UUID) -> list[UserSession]:
         """
         Get all active sessions for a user.
 
@@ -507,7 +506,7 @@ class UserService:
         """
         statement = select(UserSession).where(
             UserSession.user_id == user_id,
-            UserSession.is_active == True,
+            UserSession.is_active is True,
             UserSession.expires_at > datetime.now(timezone.utc),
         )
         return list(self.session.exec(statement).all())
@@ -534,7 +533,7 @@ class UserService:
         return count
 
     # Profile management methods
-    def get_user_profile(self, user_id: uuid.UUID) -> Optional[UserProfile]:
+    def get_user_profile(self, user_id: uuid.UUID) -> UserProfile | None:
         """
         Get a user's profile.
 

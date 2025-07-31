@@ -5,44 +5,43 @@ This module contains the FastAPI endpoints for authentication operations.
 It acts as the presentation layer for authentication in the DDD architecture.
 """
 
-from typing import Any, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Request
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlmodel import Session
+from typing import Any
 
-from src.api.deps import SessionDep, CurrentUser, get_current_active_superuser
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.security import OAuth2PasswordRequestForm
+
+from src.api.deps import CurrentUser, SessionDep
+from src.apps.users.schemas import UserPublicOutput
+from src.apps.users.services import InvalidCredentialsError
 from src.core.config import settings
 from src.utils import (
-    send_email,
-    generate_reset_password_email,
     generate_new_account_email,
+    generate_reset_password_email,
+    send_email,
 )
 
+from .schemas import (
+    AuthMessage,
+    AuthStatusResponse,
+    ChangePasswordRequest,
+    LoginRequest,
+    LogoutRequest,
+    PasswordResetConfirm,
+    PasswordResetRequest,
+    PasswordResetTokenResponse,
+    SignupRequest,
+    SignupResponse,
+    TokenRefreshRequest,
+    TokenResponse,
+)
 from .services import (
-    AuthService,
     AuthenticationError,
+    AuthService,
     InvalidTokenError,
     TooManyLoginAttemptsError,
 )
-from src.apps.users.services import InvalidCredentialsError
-from .schemas import (
-    LoginRequest,
-    LoginResponse,
-    TokenResponse,
-    SignupRequest,
-    SignupResponse,
-    PasswordResetRequest,
-    PasswordResetConfirm,
-    PasswordResetTokenResponse,
-    ChangePasswordRequest,
-    LogoutRequest,
-    TokenRefreshRequest,
-    AuthMessage,
-    AuthStatusResponse,
-)
-from src.apps.users.schemas import UserPublicOutput
 
-router = APIRouter(prefix="/auth", tags=["authentication"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 def get_auth_service(session: SessionDep) -> AuthService:
@@ -50,7 +49,7 @@ def get_auth_service(session: SessionDep) -> AuthService:
     return AuthService(session)
 
 
-def get_client_info(request: Request) -> tuple[Optional[str], Optional[str]]:
+def get_client_info(request: Request) -> tuple[str | None, str | None]:
     """Extract client IP and user agent from request."""
     ip_address = request.client.host if request.client else None
     user_agent = request.headers.get("user-agent")
@@ -296,7 +295,8 @@ def request_password_reset(
         )
 
         return PasswordResetTokenResponse(
-            message="Password recovery email sent", expires_in=60  # 1 hour in minutes
+            message="Password recovery email sent",
+            expires_in=60,  # 1 hour in minutes
         )
 
     except Exception:
@@ -335,7 +335,7 @@ def reset_password(
 
     except InvalidTokenError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to reset password",

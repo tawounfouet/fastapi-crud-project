@@ -1,27 +1,23 @@
+from typing import Any
+
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from src.core.config import settings
-
+# Auth domain models
+# Demo domain models
 # Import ALL models to ensure they're included in SQLModel metadata
 # This is critical for:
 # 1. Alembic migration auto-generation
 # 2. Proper relationship detection
 # 3. Foreign key constraint creation
-
 # User domain models
-from src.apps.users.models import User, UserSession, UserProfile
-
-# Auth domain models
-from src.apps.auth.models import RefreshToken, PasswordResetToken, LoginAttempt
-
-# Demo domain models
-from src.apps.demo.models import Product, Order, OrderItem
+from src.apps.users.models import User
+from src.core.config import settings
 
 # NOTE: When adding new apps, import their models here
 # Example: from src.apps.blog.models import Post, Comment, Tag
 
 # Create engine with optimized connection pooling
-engine_config = {
+engine_config: dict[str, Any] = {
     "echo": settings.DB_ECHO or settings.ENVIRONMENT == "local",  # SQL logging
     "pool_pre_ping": True,  # Validate connections before use
 }

@@ -2,18 +2,16 @@
 Tests for demo app products functionality
 """
 
-import uuid
-
-import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
-from src.apps.demo.models import Product
 from src.core.config import settings
 
 
 def test_create_product(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test creating a product"""
     data = {
@@ -39,7 +37,9 @@ def test_create_product(
 
 
 def test_read_products(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test reading products"""
     # Create a test product first
@@ -71,7 +71,9 @@ def test_read_products(
 
 
 def test_read_product_by_id(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test reading a specific product"""
     # Create a test product
@@ -104,7 +106,9 @@ def test_read_product_by_id(
 
 
 def test_update_product(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test updating a product"""
     # Create a test product
@@ -140,7 +144,9 @@ def test_update_product(
 
 
 def test_delete_product(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test deleting a product"""
     # Create a test product
@@ -177,11 +183,13 @@ def test_delete_product(
     )
     assert get_response.status_code == 200
     product = get_response.json()
-    assert product["is_active"] == False
+    assert product["is_active"] is False
 
 
 def test_create_product_duplicate_name(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test creating a product with duplicate name"""
     product_data = {
@@ -211,7 +219,9 @@ def test_create_product_duplicate_name(
 
 
 def test_filter_products_by_category(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test filtering products by category"""
     # Create products in different categories

@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-import jwt
 import bcrypt
+import jwt
 
 from src.core.config import settings
 
@@ -19,7 +19,9 @@ def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
 def decode_access_token(token: str) -> dict[str, Any] | None:
     """Decode and validate a JWT access token."""
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        payload: dict[str, Any] = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[ALGORITHM]
+        )
         return payload
     except jwt.PyJWTError:
         return None
@@ -36,12 +38,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         True if password matches, False otherwise
     """
-    if isinstance(plain_password, str):
-        plain_password = plain_password.encode("utf-8")
-    if isinstance(hashed_password, str):
-        hashed_password = hashed_password.encode("utf-8")
-
-    return bcrypt.checkpw(plain_password, hashed_password)
+    plain_password_bytes = plain_password.encode("utf-8")
+    hashed_password_bytes = hashed_password.encode("utf-8")
+    return bcrypt.checkpw(plain_password_bytes, hashed_password_bytes)
 
 
 def get_password_hash(password: str) -> str:
@@ -54,11 +53,10 @@ def get_password_hash(password: str) -> str:
     Returns:
         The bcrypt hashed password as a string
     """
-    if isinstance(password, str):
-        password = password.encode("utf-8")
+    password_bytes = password.encode("utf-8")
 
     # Use a cost factor of 12 for good security vs performance balance
     salt = bcrypt.gensalt(rounds=12)
-    hashed = bcrypt.hashpw(password, salt)
+    hashed = bcrypt.hashpw(password_bytes, salt)
 
     return hashed.decode("utf-8")

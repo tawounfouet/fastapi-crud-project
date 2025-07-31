@@ -7,11 +7,11 @@ for the FastAPI application database setup.
 """
 
 import sys
-from pathlib import Path
+
 from sqlmodel import Session, text
+
 from src.core.config import settings
-from src.core.database import engine, verify_db_connection
-from src.apps.users.models import User
+from src.core.database import engine
 
 
 def check_database_connection():
@@ -20,8 +20,8 @@ def check_database_connection():
 
     try:
         with Session(engine) as session:
-            result = session.exec(text("SELECT 1")).first()
-            print(f"✅ Database connection successful")
+            session.exec(text("SELECT 1")).first()
+            print("✅ Database connection successful")
             print(f"   Database URI: {settings.SQLALCHEMY_DATABASE_URI}")
             return True
     except Exception as e:
@@ -51,7 +51,7 @@ def check_table_creation():
 
             for table in required_tables:
                 try:
-                    result = session.exec(text(f"SELECT 1 FROM {table} LIMIT 1"))
+                    session.exec(text(f"SELECT 1 FROM {table} LIMIT 1"))
                     existing_tables.append(table)
                 except Exception:
                     print(f"⚠️  Table '{table}' not found")

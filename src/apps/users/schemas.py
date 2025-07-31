@@ -3,10 +3,10 @@ Users App Schemas - API input/output data models
 """
 
 import uuid
-from typing import Optional
 from datetime import datetime
+from typing import Any
 
-from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 # Constants for field descriptions
 EMAIL_DESC = "User's email address"
@@ -31,10 +31,10 @@ class UserBase(BaseModel):
     """Base user schema with shared properties"""
 
     email: EmailStr = Field(..., description=EMAIL_DESC)
-    first_name: Optional[str] = Field(
+    first_name: str | None = Field(
         None, max_length=MAX_NAME_LENGTH, description=FIRST_NAME_DESC
     )
-    last_name: Optional[str] = Field(
+    last_name: str | None = Field(
         None, max_length=MAX_NAME_LENGTH, description=LAST_NAME_DESC
     )
     is_active: bool = Field(True, description="Whether the user account is active")
@@ -55,7 +55,8 @@ class UserCreate(UserBase):
     )
 
     @field_validator("password")
-    def validate_password(cls, v):
+    @classmethod
+    def validate_password(cls, v: str) -> str:
         """Validate password strength"""
         if len(v) < MIN_PASSWORD_LENGTH:
             raise ValueError(PASSWORD_MIN_LENGTH_MSG)
@@ -68,7 +69,8 @@ class UserCreate(UserBase):
         return v
 
     @field_validator("email")
-    def normalize_email(cls, v):
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
         """Normalize email to lowercase"""
         return v.lower() if v else v
 
@@ -83,22 +85,24 @@ class UserRegister(BaseModel):
         max_length=MAX_PASSWORD_LENGTH,
         description=PASSWORD_DESC,
     )
-    first_name: Optional[str] = Field(
+    first_name: str | None = Field(
         None, max_length=MAX_NAME_LENGTH, description=FIRST_NAME_DESC
     )
-    last_name: Optional[str] = Field(
+    last_name: str | None = Field(
         None, max_length=MAX_NAME_LENGTH, description=LAST_NAME_DESC
     )
 
     @field_validator("password")
-    def validate_password(cls, v):
+    @classmethod
+    def validate_password(cls, v: str) -> str:
         """Validate password strength"""
         if len(v) < MIN_PASSWORD_LENGTH:
             raise ValueError(PASSWORD_MIN_LENGTH_MSG)
         return v
 
     @field_validator("email")
-    def normalize_email(cls, v):
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
         """Normalize email to lowercase"""
         return v.lower() if v else v
 
@@ -106,34 +110,36 @@ class UserRegister(BaseModel):
 class UserUpdate(BaseModel):
     """Schema for updating user information"""
 
-    email: Optional[EmailStr] = Field(
+    email: EmailStr | None = Field(
         None, max_length=MAX_NAME_LENGTH, description=EMAIL_DESC
     )
-    first_name: Optional[str] = Field(
+    first_name: str | None = Field(
         None, max_length=MAX_NAME_LENGTH, description=FIRST_NAME_DESC
     )
-    last_name: Optional[str] = Field(
+    last_name: str | None = Field(
         None, max_length=MAX_NAME_LENGTH, description=LAST_NAME_DESC
     )
-    password: Optional[str] = Field(
+    password: str | None = Field(
         None,
         min_length=MIN_PASSWORD_LENGTH,
         max_length=MAX_PASSWORD_LENGTH,
         description=PASSWORD_DESC,
     )
-    is_active: Optional[bool] = Field(
+    is_active: bool | None = Field(
         None, description="Whether the user account is active"
     )
 
     @field_validator("password")
-    def validate_password(cls, v):
+    @classmethod
+    def validate_password(cls, v: str | None) -> str | None:
         """Validate password strength if provided"""
         if v is not None and len(v) < MIN_PASSWORD_LENGTH:
             raise ValueError(PASSWORD_MIN_LENGTH_MSG)
         return v
 
     @field_validator("email")
-    def normalize_email(cls, v):
+    @classmethod
+    def normalize_email(cls, v: str | None) -> str | None:
         """Normalize email to lowercase"""
         return v.lower() if v else v
 
@@ -143,18 +149,19 @@ class UserUpdate(BaseModel):
 class UserUpdateMe(BaseModel):
     """Schema for users updating their own profile"""
 
-    first_name: Optional[str] = Field(
+    first_name: str | None = Field(
         None, max_length=MAX_NAME_LENGTH, description=FIRST_NAME_DESC
     )
-    last_name: Optional[str] = Field(
+    last_name: str | None = Field(
         None, max_length=MAX_NAME_LENGTH, description=LAST_NAME_DESC
     )
-    email: Optional[EmailStr] = Field(
+    email: EmailStr | None = Field(
         None, max_length=MAX_NAME_LENGTH, description=EMAIL_DESC
     )
 
     @field_validator("email")
-    def normalize_email(cls, v):
+    @classmethod
+    def normalize_email(cls, v: str | None) -> str | None:
         """Normalize email to lowercase"""
         return v.lower() if v else v
 
@@ -176,7 +183,8 @@ class UpdatePassword(BaseModel):
     )
 
     @field_validator("new_password")
-    def validate_new_password(cls, v):
+    @classmethod
+    def validate_new_password(cls, v: str) -> str:
         """Validate new password strength"""
         if len(v) < MIN_PASSWORD_LENGTH:
             raise ValueError(PASSWORD_MIN_LENGTH_MSG)
@@ -207,8 +215,8 @@ class UserPublic(BaseModel):
     """Schema for public user information (limited data)"""
 
     id: uuid.UUID = Field(..., description="User's unique identifier")
-    first_name: Optional[str] = Field(None, description=FIRST_NAME_DESC)
-    last_name: Optional[str] = Field(None, description=LAST_NAME_DESC)
+    first_name: str | None = Field(None, description=FIRST_NAME_DESC)
+    last_name: str | None = Field(None, description=LAST_NAME_DESC)
 
     @property
     def full_name(self) -> str:
@@ -245,33 +253,31 @@ class UsersPublic(BaseModel):
 class UserProfileBase(BaseModel):
     """Base user profile schema"""
 
-    bio: Optional[str] = Field(None, max_length=1000, description="User's biography")
-    avatar_url: Optional[str] = Field(
+    bio: str | None = Field(None, max_length=1000, description="User's biography")
+    avatar_url: str | None = Field(
         None, max_length=500, description="User's avatar URL"
     )
-    phone: Optional[str] = Field(None, max_length=20, description="User's phone number")
-    location: Optional[str] = Field(None, max_length=100, description="User's location")
-    website: Optional[str] = Field(
-        None, max_length=500, description="User's website URL"
-    )
+    phone: str | None = Field(None, max_length=20, description="User's phone number")
+    location: str | None = Field(None, max_length=100, description="User's location")
+    website: str | None = Field(None, max_length=500, description="User's website URL")
 
     # Social links
-    twitter_handle: Optional[str] = Field(
+    twitter_handle: str | None = Field(
         None, max_length=50, description="Twitter handle"
     )
-    linkedin_url: Optional[str] = Field(
+    linkedin_url: str | None = Field(
         None, max_length=500, description="LinkedIn profile URL"
     )
-    github_username: Optional[str] = Field(
+    github_username: str | None = Field(
         None, max_length=50, description="GitHub username"
     )
 
     # Preferences
-    timezone: Optional[str] = Field("UTC", max_length=50, description="User's timezone")
-    language: Optional[str] = Field(
+    timezone: str | None = Field("UTC", max_length=50, description="User's timezone")
+    language: str | None = Field(
         "en", max_length=10, description="User's preferred language"
     )
-    theme: Optional[str] = Field(
+    theme: str | None = Field(
         "light", max_length=20, description="User's UI theme preference"
     )
 
@@ -323,7 +329,8 @@ class UserLogin(BaseModel):
     password: str = Field(..., description="User's password")
 
     @field_validator("email")
-    def normalize_email(cls, v):
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
         """Normalize email to lowercase"""
         return v.lower() if v else v
 
@@ -340,15 +347,11 @@ class UserTokenResponse(BaseModel):
 class UserSearchRequest(BaseModel):
     """Schema for user search requests"""
 
-    query: Optional[str] = Field(None, min_length=2, description="Search query")
-    is_active: Optional[bool] = Field(None, description="Filter by active status")
-    is_superuser: Optional[bool] = Field(None, description="Filter by superuser status")
-    created_after: Optional[datetime] = Field(
-        None, description="Filter by creation date"
-    )
-    created_before: Optional[datetime] = Field(
-        None, description="Filter by creation date"
-    )
+    query: str | None = Field(None, min_length=2, description="Search query")
+    is_active: bool | None = Field(None, description="Filter by active status")
+    is_superuser: bool | None = Field(None, description="Filter by superuser status")
+    created_after: datetime | None = Field(None, description="Filter by creation date")
+    created_before: datetime | None = Field(None, description="Filter by creation date")
 
     # Pagination
     page: int = Field(1, ge=1, description="Page number")
@@ -359,7 +362,8 @@ class UserSearchRequest(BaseModel):
     sort_order: str = Field("desc", pattern="^(asc|desc)$", description="Sort order")
 
     @field_validator("sort_by")
-    def validate_sort_field(cls, v):
+    @classmethod
+    def validate_sort_field(cls, v: str) -> str:
         """Validate sort field"""
         allowed_fields = [
             "created_at",
@@ -378,10 +382,10 @@ class UserSearchRequest(BaseModel):
 class UserSessionCreate(BaseModel):
     """Schema for creating a user session"""
 
-    ip_address: Optional[str] = Field(None, description="IP address of the session")
-    user_agent: Optional[str] = Field(None, description="User agent string")
-    expires_at: Optional[datetime] = Field(None, description=SESSION_EXPIRATION_DESC)
-    metadata: Optional[dict] = Field(
+    ip_address: str | None = Field(None, description="IP address of the session")
+    user_agent: str | None = Field(None, description="User agent string")
+    expires_at: datetime | None = Field(None, description=SESSION_EXPIRATION_DESC)
+    metadata: dict[str, Any] | None = Field(
         default_factory=dict, description="Additional session metadata"
     )
 
@@ -391,12 +395,12 @@ class UserSessionResponse(BaseModel):
 
     id: uuid.UUID = Field(..., description="Session ID")
     user_id: uuid.UUID = Field(..., description=USER_ID_DESC)
-    ip_address: Optional[str] = Field(None, description="IP address")
-    user_agent: Optional[str] = Field(None, description="User agent")
+    ip_address: str | None = Field(None, description="IP address")
+    user_agent: str | None = Field(None, description="User agent")
     is_active: bool = Field(..., description="Session active status")
     created_at: datetime = Field(..., description="Session creation time")
     expires_at: datetime = Field(..., description=SESSION_EXPIRATION_DESC)
-    last_activity: Optional[datetime] = Field(None, description="Last activity time")
+    last_activity: datetime | None = Field(None, description="Last activity time")
 
 
 # Output schemas for API responses
@@ -412,7 +416,7 @@ class UserPublicOutput(UserBase):
     id: uuid.UUID = Field(..., description=USER_ID_DESC)
     is_superuser: bool = Field(..., description="Whether user is a superuser")
     created_at: datetime = Field(..., description="User creation timestamp")
-    updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
+    updated_at: datetime | None = Field(None, description="Last update timestamp")
 
 
 class UsersListOutput(BaseModel):
@@ -429,12 +433,12 @@ class UserSessionOutput(BaseModel):
 
     id: uuid.UUID = Field(..., description="Session ID")
     user_id: uuid.UUID = Field(..., description=USER_ID_DESC)
-    ip_address: Optional[str] = Field(None, description="IP address")
-    user_agent: Optional[str] = Field(None, description="User agent")
+    ip_address: str | None = Field(None, description="IP address")
+    user_agent: str | None = Field(None, description="User agent")
     is_active: bool = Field(..., description="Session active status")
     created_at: datetime = Field(..., description="Session creation time")
     expires_at: datetime = Field(..., description=SESSION_EXPIRATION_DESC)
-    last_activity: Optional[datetime] = Field(None, description="Last activity time")
+    last_activity: datetime | None = Field(None, description="Last activity time")
 
 
 class UserProfileOutput(BaseModel):
@@ -442,30 +446,14 @@ class UserProfileOutput(BaseModel):
 
     id: uuid.UUID = Field(..., description="Profile ID")
     user_id: uuid.UUID = Field(..., description=USER_ID_DESC)
-    bio: Optional[str] = Field(None, description="User bio")
-    avatar_url: Optional[str] = Field(None, description="Avatar URL")
-    website_url: Optional[str] = Field(None, description="Website URL")
-    location: Optional[str] = Field(None, description="User location")
-    birth_date: Optional[datetime] = Field(None, description="Birth date")
-    phone: Optional[str] = Field(None, description="Phone number")
-    preferences: dict = Field(default_factory=dict, description="User preferences")
+    bio: str | None = Field(None, description="User bio")
+    avatar_url: str | None = Field(None, description="Avatar URL")
+    website_url: str | None = Field(None, description="Website URL")
+    location: str | None = Field(None, description="User location")
+    birth_date: datetime | None = Field(None, description="Birth date")
+    phone: str | None = Field(None, description="Phone number")
+    preferences: dict[str, Any] = Field(
+        default_factory=dict, description="User preferences"
+    )
     created_at: datetime = Field(..., description="Profile creation timestamp")
-    updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
-
-
-# Legacy schemas for backwards compatibility
-class UserRegister(BaseModel):
-    """User registration schema"""
-
-    email: EmailStr = Field(max_length=255)
-    password: str = Field(min_length=8, max_length=40)
-    first_name: str | None = Field(default=None, max_length=100)
-    last_name: str | None = Field(default=None, max_length=100)
-
-
-class UserUpdateMe(BaseModel):
-    """User self-update schema"""
-
-    first_name: str | None = Field(default=None, max_length=100)
-    last_name: str | None = Field(default=None, max_length=100)
-    email: EmailStr | None = Field(default=None, max_length=255)
+    updated_at: datetime | None = Field(None, description="Last update timestamp")

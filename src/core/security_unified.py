@@ -22,21 +22,27 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import jwt
+
 from src.core.config import settings
 
 # Import both implementations
 from src.core.security import (
     get_password_hash as bcrypt_hash,
+)
+from src.core.security import (
     verify_password as bcrypt_verify,
 )
 
 try:
     from src.core.security_argon2 import (
-        get_password_hash as argon2_hash,
-        verify_password as argon2_verify,
-        check_needs_rehash,
-        rehash_password_if_needed,
         get_hash_info,
+        rehash_password_if_needed,
+    )
+    from src.core.security_argon2 import (
+        get_password_hash as argon2_hash,
+    )
+    from src.core.security_argon2 import (
+        verify_password as argon2_verify,
     )
 
     ARGON2_AVAILABLE = True
@@ -57,7 +63,9 @@ def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
 def decode_access_token(token: str) -> dict[str, Any] | None:
     """Decode and validate a JWT access token."""
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        payload: dict[str, Any] = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[ALGORITHM]
+        )
         return payload
     except jwt.PyJWTError:
         return None
@@ -164,7 +172,7 @@ def upgrade_password_hash(plain_password: str, current_hash: str) -> str | None:
 
 def get_security_info() -> dict[str, Any]:
     """Get information about current security configuration."""
-    info = {
+    info: dict[str, Any] = {
         "algorithm": settings.PASSWORD_HASH_ALGORITHM,
         "bcrypt_available": True,
         "argon2_available": ARGON2_AVAILABLE,
@@ -173,7 +181,9 @@ def get_security_info() -> dict[str, Any]:
     if settings.PASSWORD_HASH_ALGORITHM == "bcrypt":
         info["bcrypt_rounds"] = settings.BCRYPT_ROUNDS
     elif settings.PASSWORD_HASH_ALGORITHM == "argon2" and ARGON2_AVAILABLE:
-        info.update(get_hash_info())
+        argon2_info = get_hash_info()
+        if argon2_info:
+            info.update(argon2_info)
 
     return info
 

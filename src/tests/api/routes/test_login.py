@@ -3,12 +3,11 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
+from src.apps.users.schemas import UserCreate
+from src.apps.users.services import UserService
 from src.core.config import settings
 from src.core.security import verify_password
-from src.apps.users.services import UserService
-from src.apps.users.schemas import UserCreate
-from src.tests.utils.user import user_authentication_headers
-from src.tests.utils.utils import random_email, random_lower_string, random_password
+from src.tests.utils.utils import random_email, random_password
 from src.utils import generate_password_reset_token
 
 
@@ -99,8 +98,9 @@ def test_reset_password(client: TestClient, db: Session) -> None:
 
     # For testing, we need to extract the token that was generated during the request
     # Since we can't access the email, we'll query the database for the token
-    from src.apps.auth.models import PasswordResetToken
     from sqlmodel import select
+
+    from src.apps.auth.models import PasswordResetToken
 
     # Get the most recent password reset token for this email
     db_token = db.exec(

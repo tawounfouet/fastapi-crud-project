@@ -6,11 +6,12 @@ This module contains authentication-related database models.
 
 import uuid
 from datetime import datetime, timezone
-from typing import Optional, TYPE_CHECKING
-from sqlmodel import SQLModel, Field, Column, DateTime, Boolean, Relationship
+from typing import TYPE_CHECKING
+
+from sqlmodel import Column, DateTime, Field, SQLModel
 
 if TYPE_CHECKING:
-    from src.apps.users.models import User
+    pass
 
 # Constants
 USER_ID_FK = "users.id"
@@ -47,14 +48,14 @@ class RefreshToken(BaseAuthModel, table=True):
     # Token lifecycle
     expires_at: datetime = Field(sa_column=Column(DateTime(timezone=True)))
     revoked: bool = Field(default=False)
-    revoked_at: Optional[datetime] = Field(
+    revoked_at: datetime | None = Field(
         default=None, sa_column=Column(DateTime(timezone=True), nullable=True)
     )
 
     # Metadata
-    device_id: Optional[str] = Field(default=None, max_length=255)
-    user_agent: Optional[str] = Field(default=None, max_length=500)
-    ip_address: Optional[str] = Field(default=None, max_length=45)
+    device_id: str | None = Field(default=None, max_length=255)
+    user_agent: str | None = Field(default=None, max_length=500)
+    ip_address: str | None = Field(default=None, max_length=45)
 
     def is_valid(self) -> bool:
         """Check if the refresh token is still valid."""
@@ -87,13 +88,13 @@ class PasswordResetToken(BaseAuthModel, table=True):
     # Token lifecycle
     expires_at: datetime = Field(sa_column=Column(DateTime(timezone=True)))
     used: bool = Field(default=False)
-    used_at: Optional[datetime] = Field(
+    used_at: datetime | None = Field(
         default=None, sa_column=Column(DateTime(timezone=True), nullable=True)
     )
 
     # Metadata
-    ip_address: Optional[str] = Field(default=None, max_length=45)
-    user_agent: Optional[str] = Field(default=None, max_length=500)
+    ip_address: str | None = Field(default=None, max_length=45)
+    user_agent: str | None = Field(default=None, max_length=500)
 
     def is_valid(self) -> bool:
         """Check if the password reset token is still valid."""
@@ -124,14 +125,14 @@ class LoginAttempt(BaseAuthModel, table=True):
     # Attempt data
     email: str = Field(max_length=255, index=True)
     successful: bool = Field(default=False)
-    failure_reason: Optional[str] = Field(default=None, max_length=255)
+    failure_reason: str | None = Field(default=None, max_length=255)
 
     # Request metadata
-    ip_address: Optional[str] = Field(default=None, max_length=45)
-    user_agent: Optional[str] = Field(default=None, max_length=500)
+    ip_address: str | None = Field(default=None, max_length=45)
+    user_agent: str | None = Field(default=None, max_length=500)
 
     # User reference (optional - may not exist if email is invalid)
-    user_id: Optional[uuid.UUID] = Field(default=None, foreign_key=USER_ID_FK)
+    user_id: uuid.UUID | None = Field(default=None, foreign_key=USER_ID_FK)
 
     # Relationships
     # user: Optional["User"] = Relationship(back_populates="login_attempts")

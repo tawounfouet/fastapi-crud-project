@@ -1,6 +1,6 @@
+import uuid
 from collections.abc import Generator
 from typing import Annotated
-import uuid
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -9,11 +9,11 @@ from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
 from sqlmodel import Session
 
+from src.apps.shared import TokenPayload
+from src.apps.users.models import User
 from src.core import security
 from src.core.config import settings
 from src.core.database import engine
-from src.apps.shared import TokenPayload
-from src.apps.users.models import User
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"

@@ -5,9 +5,11 @@ Provides specialized database session dependencies and utilities
 following best practices for connection management and error handling.
 """
 
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
+
 from sqlmodel import Session
+
 from src.core.database import engine
 
 

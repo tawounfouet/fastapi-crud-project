@@ -6,8 +6,23 @@ This module contains Pydantic schemas for authentication operations.
 
 import uuid
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from typing import TYPE_CHECKING, Any
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
+
+def rebuild_models() -> None:
+    """Rebuild models to resolve forward references"""
+    try:
+        # Import is needed for model rebuilding even if not directly used
+        from src.apps.users.schemas import UserPublicOutput  # noqa: F401
+
+        LoginResponse.model_rebuild()
+        SignupResponse.model_rebuild()
+    except ImportError:
+        # Handle cases where UserPublicOutput might not be available
+        pass
+
 
 if TYPE_CHECKING:
     from src.apps.users.schemas import UserPublicOutput
@@ -20,7 +35,7 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=100)
     remember_me: bool = Field(default=False)
-    device_id: Optional[str] = Field(default=None, max_length=255)
+    device_id: str | None = Field(default=None, max_length=255)
 
 
 class TokenRefreshRequest(BaseModel):
@@ -70,10 +85,10 @@ class TokenResponse(BaseModel):
     """Schema for token responses"""
 
     access_token: str
-    refresh_token: Optional[str] = None
+    refresh_token: str | None = None
     token_type: str = Field(default="bearer")
     expires_in: int  # seconds
-    scope: Optional[str] = None
+    scope: str | None = None
 
 
 class LoginResponse(BaseModel):
@@ -90,11 +105,11 @@ class RefreshTokenResponse(BaseModel):
     """Schema for refresh token responses"""
 
     id: str
-    device_id: Optional[str]
+    device_id: str | None
     created_at: datetime
     expires_at: datetime
-    user_agent: Optional[str]
-    ip_address: Optional[str]
+    user_agent: str | None
+    ip_address: str | None
     revoked: bool
 
     model_config = ConfigDict(from_attributes=True)
@@ -106,9 +121,9 @@ class LoginAttemptResponse(BaseModel):
     id: str
     email: str
     successful: bool
-    failure_reason: Optional[str]
-    ip_address: Optional[str]
-    user_agent: Optional[str]
+    failure_reason: str | None
+    ip_address: str | None
+    user_agent: str | None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -125,10 +140,10 @@ class AuthStatusResponse(BaseModel):
     """Schema for authentication status responses"""
 
     authenticated: bool
-    user_id: Optional[uuid.UUID] = None
-    session_id: Optional[str] = None
+    user_id: uuid.UUID | None = None
+    session_id: str | None = None
     permissions: list[str] = Field(default_factory=list)
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
 
 
 class SecurityEventResponse(BaseModel):
@@ -136,9 +151,9 @@ class SecurityEventResponse(BaseModel):
 
     event_type: str
     timestamp: datetime
-    ip_address: Optional[str]
-    user_agent: Optional[str]
-    details: dict = Field(default_factory=dict)
+    ip_address: str | None
+    user_agent: str | None
+    details: dict[str, Any] = Field(default_factory=dict)
 
 
 # Message Schemas
@@ -167,25 +182,16 @@ class TokenClaims(BaseModel):
     email: str
     is_superuser: bool = False
     is_active: bool = True
-    session_id: Optional[str] = None
-    device_id: Optional[str] = None
+    session_id: str | None = None
+    device_id: str | None = None
     scope: str = "access"
     iat: int  # issued at
     exp: int  # expires at
-    jti: Optional[str] = None  # JWT ID for revocation
+    jti: str | None = None  # JWT ID for revocation
 
 
-# Rebuild models with forward references after all imports are available
-def rebuild_models():
-    """Rebuild models to resolve forward references"""
-    try:
-        from src.apps.users.schemas import UserPublicOutput
-
-        LoginResponse.model_rebuild()
-        SignupResponse.model_rebuild()
-    except ImportError:
-        # Handle cases where UserPublicOutput might not be available
-        pass
+# Call rebuild at module level
+rebuild_models()
 
 
 # Call rebuild when module is imported

@@ -6,10 +6,32 @@ It acts as the presentation layer in the DDD architecture.
 """
 
 import uuid
-from typing import Any, List
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlmodel import Session
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+
+from src.api.deps import CurrentUser, SessionDep, get_current_active_superuser
+from src.core.config import settings
+from src.utils import generate_new_account_email, send_email
+
+from .schemas import (
+    MessageOutput,
+    UpdatePassword,
+    UserCreate,
+    UserProfileOutput,
+    UserProfileUpdate,
+    UserPublicOutput,
+    UserSessionResponse,
+    UsersListOutput,
+    UserUpdate,
+    UserUpdateMe,
+)
+from .services import (
+    InvalidCredentialsError,
+    UserAlreadyExistsError,
+    UserNotFoundError,
+    UserService,
+)
 
 # Constants for error messages and responses
 USER_NOT_FOUND_MSG = "User not found"
@@ -20,37 +42,7 @@ USER_DELETED_MSG = "User deleted successfully"
 PASSWORD_UPDATED_MSG = "Password updated successfully"
 PROFILE_NOT_FOUND_MSG = "Profile not found"
 
-from src.api.deps import SessionDep, CurrentUser, get_current_active_superuser
-from src.core.config import settings
-from src.utils import generate_new_account_email, send_email
-from .services import (
-    UserService,
-    UserNotFoundError,
-    UserAlreadyExistsError,
-    InvalidCredentialsError,
-    InactiveUserError,
-)
-from .schemas import (
-    UserCreate,
-    UserUpdate,
-    UpdatePassword,
-    UserResponse,
-    UserListResponse,
-    UserUpdateMe,
-    UserRegister,
-    UserSessionCreate,
-    UserSessionResponse,
-    UserProfileUpdate,
-    UserProfileResponse,
-    MessageOutput,
-    UserPublicOutput,
-    UsersListOutput,
-    UserSessionResponse,
-    UserProfileOutput,
-)
-from .models import User
-
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 
 def get_user_service(session: SessionDep) -> UserService:
@@ -476,7 +468,7 @@ def promote_user_to_superuser(
 
 @router.get(
     "/me/sessions",
-    response_model=List[UserSessionResponse],
+    response_model=list[UserSessionResponse],
     summary="Get current user sessions",
     description="Get all active sessions for the current user.",
 )

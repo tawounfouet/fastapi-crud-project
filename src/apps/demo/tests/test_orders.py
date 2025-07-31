@@ -4,16 +4,16 @@ Tests for demo app orders functionality
 
 import uuid
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
-from src.apps.demo.models import Order, Product
 from src.core.config import settings
 
 
 def test_create_order(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test creating an order"""
     # First create a product
@@ -55,7 +55,9 @@ def test_create_order(
 
 
 def test_create_order_insufficient_stock(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test creating an order with insufficient stock"""
     # Create a product with limited stock
@@ -97,7 +99,9 @@ def test_create_order_insufficient_stock(
 
 
 def test_create_order_nonexistent_product(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test creating an order with non-existent product"""
     fake_product_id = str(uuid.uuid4())
@@ -120,7 +124,9 @@ def test_create_order_nonexistent_product(
 
 
 def test_read_orders(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test reading orders"""
     # Create a product first
@@ -165,7 +171,9 @@ def test_read_orders(
 
 
 def test_read_order_by_id(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test reading a specific order"""
     # Create a product
@@ -213,7 +221,9 @@ def test_read_order_by_id(
 
 
 def test_update_order_status(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test updating order status"""
     # Create a product
@@ -262,7 +272,9 @@ def test_update_order_status(
 
 
 def test_filter_orders_by_status(
-    client: TestClient, superuser_token_headers: dict[str, str], db: Session
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,  # noqa: ARG001
 ) -> None:
     """Test filtering orders by status"""
     # Create a product

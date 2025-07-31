@@ -4,10 +4,9 @@ Contains the core business rules and operations
 """
 
 import uuid
-from typing import Any
 
 from fastapi import HTTPException
-from sqlmodel import Session, func, select
+from sqlmodel import Session, desc, func, select
 
 from src.apps.demo.models import Order, OrderItem, Product
 from src.apps.demo.schemas import (
@@ -32,7 +31,7 @@ class ProductService:
         # Check if product name already exists
         existing = session.exec(
             select(Product).where(
-                Product.name == product_in.name, Product.is_active == True
+                Product.name == product_in.name, Product.is_active is True
             )
         ).first()
 
@@ -72,7 +71,7 @@ class ProductService:
             statement = statement.where(Product.is_active == is_active)
 
         statement = statement.offset(skip).limit(limit)
-        return session.exec(statement).all()
+        return list(session.exec(statement).all())
 
     @staticmethod
     def update_product(
@@ -101,10 +100,14 @@ class ProductService:
     @staticmethod
     def get_product_stats(*, session: Session) -> ProductStats:
         """Get product statistics"""
-        total_products = session.exec(select(func.count(Product.id))).first() or 0
+        total_products = (
+            session.exec(select(func.count()).select_from(Product)).first() or 0
+        )
         active_products = (
             session.exec(
-                select(func.count(Product.id)).where(Product.is_active == True)
+                select(func.count())
+                .select_from(Product)
+                .where(Product.is_active is True)
             ).first()
             or 0
         )
@@ -114,9 +117,9 @@ class ProductService:
         )
         low_stock_products = (
             session.exec(
-                select(func.count(Product.id)).where(
-                    Product.stock_quantity < 10, Product.is_active == True
-                )
+                select(func.count())
+                .select_from(Product)
+                .where(Product.stock_quantity < 10, Product.is_active is True)
             ).first()
             or 0
         )
@@ -182,8 +185,9 @@ class OrderService:
         # Update product stock
         for item in order_in.order_items:
             product = session.get(Product, item.product_id)
-            product.stock_quantity -= item.quantity
-            session.add(product)
+            if product is not None:
+                product.stock_quantity -= item.quantity
+                session.add(product)
 
         session.commit()
         session.refresh(db_order)
@@ -211,10 +215,8 @@ class OrderService:
         if status:
             statement = statement.where(Order.status == status)
 
-        statement = (
-            statement.offset(skip).limit(limit).order_by(Order.created_at.desc())
-        )
-        return session.exec(statement).all()
+        statement = statement.offset(skip).limit(limit).order_by(desc(Order.created_at))
+        return list(session.exec(statement).all())
 
     @staticmethod
     def update_order(
@@ -231,16 +233,20 @@ class OrderService:
     @staticmethod
     def get_order_stats(*, session: Session) -> OrderStats:
         """Get order statistics"""
-        total_orders = session.exec(select(func.count(Order.id))).first() or 0
+        total_orders = (
+            session.exec(select(func.count()).select_from(Order)).first() or 0
+        )
         pending_orders = (
             session.exec(
-                select(func.count(Order.id)).where(Order.status == "pending")
+                select(func.count()).select_from(Order).where(Order.status == "pending")
             ).first()
             or 0
         )
         completed_orders = (
             session.exec(
-                select(func.count(Order.id)).where(Order.status == "completed")
+                select(func.count())
+                .select_from(Order)
+                .where(Order.status == "completed")
             ).first()
             or 0
         )
